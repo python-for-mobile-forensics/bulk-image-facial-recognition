@@ -56,6 +56,3 @@ for k_per in known_persons:
   known_comparison_image = create_face_comparison_encoding(k_per)
   known_list.append(known_comparison_image)
 compare_faces(unknown_persons,known_list)
-
-#for image_file in images:
-#  recognize_faces(image_file)
