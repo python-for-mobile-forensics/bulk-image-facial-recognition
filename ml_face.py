@@ -16,7 +16,7 @@ def get_image_directory(path):
 def recognize_faces(path):
   file_name = path_leaf(path)
   image = face_recognition.load_image_file(path)
-  face_locations = face_recognition.face_locations(image)
+  face_locations = face_recognition.face_locations(image, model="cnn")
   i = 0
   for face_location in face_locations:
     top, right, bottom, left = face_location
@@ -27,9 +27,15 @@ def recognize_faces(path):
 
 def compare_faces(unknown_images, known_images):
   for image in unknown_images:
-    unknown_comparison_image = create_face_comparison_encoding(image)
+    try:
+      unknown_comparison_image = create_face_comparison_encoding(image)
+    except (IndexError, ValueError):
+      continue
     for k_image in known_images:
-      results = face_recognition.compare_faces([k_image],unknown_comparison_image)
+      try:
+        results = face_recognition.compare_faces([k_image],unknown_comparison_image)
+      except (IndexError, ValueError):
+        continue
       if results[0] == True:
         print("This person appears familiar!")
         print("Writing the faces to output folder!")
