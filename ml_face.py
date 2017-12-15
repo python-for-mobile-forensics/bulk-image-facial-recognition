@@ -16,7 +16,7 @@ def get_image_directory(path):
 def recognize_faces(path):
   file_name = path_leaf(path)
   image = face_recognition.load_image_file(path)
-  face_locations = face_recognition.face_locations(image)
+  face_locations = face_recognition.face_locations(image, model="cnn")
   i = 0
   for face_location in face_locations:
     top, right, bottom, left = face_location
@@ -25,17 +25,22 @@ def recognize_faces(path):
     pil_image.save( 'output/' + str(file_name) + '_' +str(i)+".png")
     i+=1
 
-def compare_faces(unknown_images, known_images):
-  for image in unknown_images:
-    unknown_comparison_image = create_face_comparison_encoding(image)
-    for k_image in known_images:
+def compare_faces(unknown_image, known_images):
+  try:
+    unknown_comparison_image = create_face_comparison_encoding(unknown_image)
+  except (IndexError, ValueError):
+    return False
+  for k_image in known_images:
+    try:
       results = face_recognition.compare_faces([k_image],unknown_comparison_image)
-      if results[0] == True:
-        print("This person appears familiar!")
-        print("Writing the faces to output folder!")
-        recognize_faces(image)
-      else:
-        print("This doesn't appear to be familiar!")
+    except (IndexError, ValueError):
+      continue
+    if results[0] == True:
+      print("This person appears familiar!")
+      print("Writing the faces to output folder!")
+      recognize_faces(unknown_image)
+    else:
+      print("This doesn't appear to be familiar!")
 
 def path_leaf(path):
   head, tail = ntpath.split(path)
@@ -45,14 +50,3 @@ def create_face_comparison_encoding(image):
   known_image = face_recognition.load_image_file(image)
   known_image_encoding = face_recognition.face_encodings(known_image)[0]
   return known_image_encoding
-
-##
-# The Program
-##
-unknown_persons = get_image_directory('images/') # Unknown Persons Directory
-known_persons = get_image_directory('known_person/') # Known Persons Directory
-known_list = [] # Empty List
-for k_per in known_persons:
-  known_comparison_image = create_face_comparison_encoding(k_per)
-  known_list.append(known_comparison_image)
-compare_faces(unknown_persons,known_list)
