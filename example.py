@@ -1,5 +1,6 @@
+#!/usr/bin/python3
 from ml_face import *
-import threading
+from concurrent.futures import ProcessPoolExecutor
 
 ##
 # The Program
@@ -11,7 +12,11 @@ for k_per in known_persons:
   known_comparison_image = create_face_comparison_encoding(k_per)
   known_list.append(known_comparison_image)
 
-if not unknown_persons:
-  t = threading.Thread(target=compare_faces, args=(unknown_persons.pop(), known_list) )
-  threads.append(t)
-  t.start()
+##
+# Multi Processing
+##
+executor = ProcessPoolExecutor(max_workers=10)
+futures = []
+for image in unknown_persons:
+  work = executor.submit(compare_faces(image,known_list))
+  futures.append(work)

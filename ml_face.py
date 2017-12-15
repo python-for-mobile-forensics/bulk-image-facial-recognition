@@ -27,9 +27,9 @@ def recognize_faces(path):
 
 def compare_faces(unknown_image, known_images):
   try:
-    unknown_comparison_image = create_face_comparison_encoding(image)
+    unknown_comparison_image = create_face_comparison_encoding(unknown_image)
   except (IndexError, ValueError):
-    return false
+    return False
   for k_image in known_images:
     try:
       results = face_recognition.compare_faces([k_image],unknown_comparison_image)
@@ -38,7 +38,7 @@ def compare_faces(unknown_image, known_images):
     if results[0] == True:
       print("This person appears familiar!")
       print("Writing the faces to output folder!")
-      recognize_faces(image)
+      recognize_faces(unknown_image)
     else:
       print("This doesn't appear to be familiar!")
 
