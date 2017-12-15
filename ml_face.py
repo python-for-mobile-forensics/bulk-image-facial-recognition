@@ -25,23 +25,22 @@ def recognize_faces(path):
     pil_image.save( 'output/' + str(file_name) + '_' +str(i)+".png")
     i+=1
 
-def compare_faces(unknown_images, known_images):
-  for image in unknown_images:
+def compare_faces(unknown_image, known_images):
+  try:
+    unknown_comparison_image = create_face_comparison_encoding(image)
+  except (IndexError, ValueError):
+    return false
+  for k_image in known_images:
     try:
-      unknown_comparison_image = create_face_comparison_encoding(image)
+      results = face_recognition.compare_faces([k_image],unknown_comparison_image)
     except (IndexError, ValueError):
       continue
-    for k_image in known_images:
-      try:
-        results = face_recognition.compare_faces([k_image],unknown_comparison_image)
-      except (IndexError, ValueError):
-        continue
-      if results[0] == True:
-        print("This person appears familiar!")
-        print("Writing the faces to output folder!")
-        recognize_faces(image)
-      else:
-        print("This doesn't appear to be familiar!")
+    if results[0] == True:
+      print("This person appears familiar!")
+      print("Writing the faces to output folder!")
+      recognize_faces(image)
+    else:
+      print("This doesn't appear to be familiar!")
 
 def path_leaf(path):
   head, tail = ntpath.split(path)
